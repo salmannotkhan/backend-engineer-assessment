@@ -6,7 +6,9 @@ import com.midas.app.services.AccountService;
 import com.midas.generated.api.AccountsApi;
 import com.midas.generated.model.AccountDto;
 import com.midas.generated.model.CreateAccountDto;
+import com.midas.generated.model.UpdateAccountDto;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +42,25 @@ public class AccountController implements AccountsApi {
                 .build());
 
     return new ResponseEntity<>(Mapper.toAccountDto(account), HttpStatus.CREATED);
+  }
+
+  /**
+   * PATCH /accounts/{accountId} : Update user account Updates a user account with the given
+   * details.
+   *
+   * @param accountId accountId of user account (required)
+   * @param updateAccountDto User account details (required)
+   * @return User account updated (status code 201) or Bad request (status code 400) or Unauthorized
+   *     (status code 401) or Forbidden (status code 403) or Internal server error (status code 500)
+   */
+  @Override
+  public ResponseEntity<AccountDto> updateUserAccount(UUID accountId, UpdateAccountDto details) {
+    var account = accountService.getAccount(accountId);
+    if (account.isEmpty()) {
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+    var updatedAccount = accountService.updateAccount(account.get(), details);
+    return new ResponseEntity<>(Mapper.toAccountDto(updatedAccount), HttpStatus.OK);
   }
 
   /**
